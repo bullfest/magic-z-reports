@@ -16,18 +16,21 @@ def main():
             if date:
                 print "The reports don't have the same date! Error on file",'"{0}"'.format(sys.argv[i])
                 return
-    
+
     lines = inp.split('\n')
-    
-    
+
+
     card, cash = getPayments(lines)
     categorys = getProducts(lines)
     if sum(categorys.values()) == (card+cash):
         print "Date:", getDate(lines)
-        print "Card:", card, "  Cash:",cash, "  Total:", card+cash
+        print "Card:", card, "  Cash:",cash
+        print "Refunds:", getNettoTotal(lines)-(card+cash), "  Total:", getNettoTotal(lines)
         print ""
         for k,v in categorys.items():
             print '{0:8.2f} kr - {1}'.format(v, k)
+        if getNettoTotal(lines)-(card+cash) != 0:
+            print "ALERT!!! Report has refunds!!! Check report for more details"
     else:
         print "There seems to be some problem with the parsing of the file"
 
@@ -49,10 +52,19 @@ def getDate(lines):
         if match:
             return match.group(1)
 
+def getNettoTotal(lines):
+    nettoregex = re.compile("\s*Net amount\s+([\d,]+\.\d\d)\s+[\d,]+\.\d\d\s+[\d,]+\.\d\d\s*")
+    tot = 0
+    for l in lines:
+        match = nettoregex.match(l)
+        if match:
+            tot += locale.atof(match.group(1))
+    return tot
+
 def getProducts(lines):
     productregex = re.compile("(.+?)(,\s(.*?))?\s+([\d,]+)\s+([\d,]+\.\d\d)\s+[\d,]+\.\d\d\s+([\d,]+\.\d\d)")
     categorys = {}
-    
+
     sumSold  = 0
     for l in lines:
         match = productregex.match(l)
