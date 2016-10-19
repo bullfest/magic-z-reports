@@ -1,3 +1,4 @@
+# coding=UTF-8
 from subprocess import Popen, PIPE
 import sys, re, locale
 
@@ -23,7 +24,8 @@ def main():
     card, cash = getPayments(lines)
     categorys = getProducts(lines)
     if sum(categorys.values()) == (card+cash):
-        print "Date:", getDate(lines)
+        print "\n-------------------------------------------"
+	print "Date:", getDate(lines)
         print "Card:", card, "  Cash:",cash
         print "Refunds:", getNettoTotal(lines)-(card+cash), "  Total:", getNettoTotal(lines)
         print ""
@@ -31,6 +33,13 @@ def main():
             print '{0:8.2f} kr - {1}'.format(v, k)
         if getNettoTotal(lines)-(card+cash) != 0:
             print "ALERT!!! Report has refunds!!! Check report for more details"
+    	print "--------------------------\n"
+    	print "Bokföringshjälp:\n"
+    	for k,v in categorys.items():
+            if k == "Öl" or k == "Cider":
+                print '{0:8.2f} kr - {1}'.format(v*0.85, k + "lager")
+            if k == "Sprit":
+                print '{0:8.2f} kr - {1}'.format(v*0.43, k + "lager")
     else:
         print "There seems to be some problem with the parsing of the file"
 
