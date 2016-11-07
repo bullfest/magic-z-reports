@@ -22,8 +22,10 @@ def main():
 
 
     card, cash = getPayments(lines)
+    discounts = getDiscounts(lines)
     categorys = getProducts(lines)
-    if sum(categorys.values()) == (card+cash):
+    
+    if sum(categorys.values())+ discounts == (card+cash):
         print "\n-------------------------------------------"
 	print "Date:", getDate(lines)
         print "Card:", card, "  Cash:",cash
@@ -33,6 +35,8 @@ def main():
             print '{0:8.2f} kr - {1}'.format(v, k)
         if getNettoTotal(lines)-(card+cash) != 0:
             print "ALERT!!! Report has refunds!!! Check report for more details"
+        if discounts != 0:
+            print "ALERT!!! Report has disounts, make sure you handle them correctly"
     	print "--------------------------\n"
     	print "Bokföringshjälp:\n"
     	for k,v in categorys.items():
@@ -54,6 +58,14 @@ def getPayments(lines):
             cash += locale.atof(match.group(2))
     return (card, cash)
 
+def getDiscounts(lines):
+    dateregex = re.compile("\s*Discount\s+(-?\d+\.\d\d)\s+-?\d+\.\d\d\s+-?\d+\.\d\d\s*")
+    for l in lines:
+        match = dateregex.match(l)
+        if match:
+            return locale.atof(match.group(1))
+    return 0;
+
 def getDate(lines):
     dateregex = re.compile("\s*.+?\s+([A-Z][a-z]{2} \d\d?, \d{4}) \d\d:\d\d\s*")
     for l in lines:
@@ -67,7 +79,7 @@ def getNettoTotal(lines):
     for l in lines:
         match = nettoregex.match(l)
         if match:
-            tot += locale.atof(match.group(1))
+            tot += locale.atof(match.group(1))  
     return tot
 
 def getProducts(lines):
