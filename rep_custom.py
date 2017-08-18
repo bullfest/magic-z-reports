@@ -41,7 +41,7 @@ def main():
         ol_lager = 0.0
         cider_lager = 0.0
     	for k,v in categorys.items():
-            if k == "Öl" or k == "pÖL":
+            if k == "Öl" or k == "pÖl":
                 ol_lager += v
             if k == "Cider" or k == "pCider":
                 cider_lager += v
