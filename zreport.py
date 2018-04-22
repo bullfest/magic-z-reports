@@ -24,7 +24,7 @@ def main():
     card, cash = getPayments(lines)
     discounts = getDiscounts(lines)
     categorys = getProducts(lines)
-    
+
     if sum(categorys.values())+ discounts == (card+cash):
         print "\n-------------------------------------------"
 	print "Date:", getDate(lines)
@@ -39,23 +39,33 @@ def main():
             print "ALERT!!! Report has disounts, make sure you handle them correctly"
     	print "--------------------------\n"
     	print "Bokföringshjälp:\n"
+        ol_lager = 0.0
+        cider_lager = 0.0
     	for k,v in categorys.items():
-            if k == "Öl" or k == "Cider":
-                print '{0:8.2f} kr - {1}'.format(v*0.85, k + "lager")
+            if k == "Öl" or k == "pÖl":
+                ol_lager += v
+            if k == "Cider" or k == "pCider":
+                cider_lager += v
             if k == "Sprit":
                 print '{0:8.2f} kr - {1}'.format(v*0.43, k + "lager")
+
+        print '{0:8.2f} kr - {1}'.format(ol_lager*0.85, "Öllager")
+        print '{0:8.2f} kr - {1}'.format(cider_lager*0.85, "Ciderlager")
     else:
         print "There seems to be some problem with the parsing of the file"
 
 def getPayments(lines):
-    paymentsregex = re.compile("\s*Card\s+\(\d+\)\s+([\d,]+\.\d\d)\s+Cash\s+\(\d+\)\s+([\d,]+\.\d\d)\s*")
-    card = 0
+    card_paymentsregex = re.compile("\s*Card\s+\(\d+\)\s+([\d,]+\.\d\d)\s*")
+    cash_paymentsregex = re.compile("\s*Cash\s+\(\d+\)\s+([\d,]+\.\d\d)\s*")
     cash = 0
+    card = 0
     for l in lines:
-        match = paymentsregex.match(l)
-        if match:
-            card += locale.atof(match.group(1))
-            cash += locale.atof(match.group(2))
+        card_match = card_paymentsregex.match(l)
+        cash_match = cash_paymentsregex.match(l)
+        if card_match:
+            card += locale.atof(card_match.group(1))
+        elif cash_match:
+            cash += locale.atof(cash_match.group(1))
     return (card, cash)
 
 def getDiscounts(lines):
